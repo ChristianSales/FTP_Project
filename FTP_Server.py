@@ -64,8 +64,13 @@ while connection:
                 info = "This file does not exist"
         else:
             info = "Please enter a directory path"
-    elif cmd == "quit" or "Quit":
+
+    elif cmd == "quit":
         quit()
+
     else:
         info = "Invalid Command"
     c.send(info.encode())
+
+
+
