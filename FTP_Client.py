@@ -1,6 +1,6 @@
 import socket, re, os, glob, gzip, select, getpass
 
-
+# Code by Sonny Rasavong and Hunter Sales
 
 print("Attempting connection to server...")
 s = ""
@@ -15,6 +15,7 @@ except (socket.gaierror,ConnectionRefusedError):
 print("Connection Successful!")
 connection = True
 login = False
+"""
 while not login:
     print("FTP Login 192.168.1.69")
     print("Please enter your username")
@@ -28,9 +29,9 @@ while not login:
     else:
         print("Access Granted")
         login = True
+"""
 
-
-
+os.chdir("D://FTP_Client")
 
 while connection:
     print(s.recv(1024).decode())
@@ -38,9 +39,28 @@ while connection:
     if command == "":
         command = " "
     s.send(command.encode())
-    print('test1')
-    print(s.recv(1024).decode())
-    print('test2')
+    if command == "ls":
+        print(s.recv(1024).decode())
+    if command == "cd":
+        print(s.recv(1024).decode())
+
+    if command == "get":
+        data = command.split("/")
+        filename = data[-1]
+        answer = s.recv(1024).decode()
+        if answer == "File not found" or "Please enter a file":
+            print(answer)
+        else:
+
+            if filename[-3:] == 'jpg' or 'png':
+                f = open(os.curdir + data[1], "wb")
+                f.write(answer)
+                f.close()
+            elif filename[-3:] == 'txt':
+                f = open(os.curdir + data[1], "w")
+                f.write(answer)
+                f.close()
+
 
     if command == "quit":
         print('Shutting down...')
