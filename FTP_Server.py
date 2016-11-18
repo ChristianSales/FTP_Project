@@ -1,5 +1,5 @@
 import socket, re, os, glob, gzip, select
-
+#  Code by Sonny Rasavong and Hunter Sales
 
 s = ''
 mainDir = "D://"
@@ -25,6 +25,35 @@ while trying:
         c.send("Please enter a username and password")
         loginInfo = c.recv(1024)
         """
+
+
+def get(file):
+    if file[-3:] == "jpg" or "png":
+        try:
+            with open(file, 'rb') as inf:
+                content = inf.read()
+                inf.close()
+                return content
+        except FileNotFoundError:
+            return "File not found"
+    elif file[-3:] == "txt":
+        try:
+            with open(file, 'r') as inf:
+                content = inf.read()
+                inf.close()
+                return content
+        except FileNotFoundError:
+            return "File not found"
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -65,12 +94,19 @@ while connection:
         else:
             info = "Please enter a directory path"
 
+    elif cmd == "get":
+        if len(wish) > 0:
+            info = get(wish)
+        else:
+            info = "Please enter a file"
+
     elif cmd == "quit":
         quit()
 
     else:
         info = "Invalid Command"
     c.send(info.encode())
+
 
 
 
