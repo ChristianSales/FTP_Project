@@ -1,4 +1,6 @@
 import socket, re, os, glob, gzip, select
+import time
+
 #  Code by Sonny Rasavong and Hunter Sales
 
 s = ''
@@ -17,52 +19,39 @@ except:
     quit()
 
 connection = True
-"""
-trying = True
-password = False
-while trying:
-    while not password:
-        c.send("Please enter a username and password")
-        loginInfo = c.recv(1024)
-        """
 
 
 def get(file):
-    if file[-3:] == "jpg" or "png":
-        try:
-            with open(file, 'rb') as inf:
-                content = inf.read()
-                inf.close()
-                return content
-        except FileNotFoundError:
-            return "File not found"
-    elif file[-3:] == "txt":
-        try:
-            with open(file, 'r') as inf:
-                content = inf.read()
-                inf.close()
-                return content
-        except FileNotFoundError:
-            return "File not found"
+    try:
+        print(file)
+        with open(file, 'rb') as inf:
+            c.send("File found".encode())
+            while True:
+                inf_data = inf.read(4096)
+                if inf_data == b'':
+                    print("end of file")
+                    inf_data = "Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*"
+                    c.send(inf_data.encode())
+                    time.sleep(.1)
+                    break
+                time.sleep(.1)
+                print('sendall')
+                c.sendall(inf_data)
+    except FileNotFoundError:
+        c.send("File not found".encode())
 
-
-
-
-
-
-
-
-
-
-
+def mget(file):
+    files = file.split(' ')
+    for length in range(len(files)):
+        if files[length] != "mget":
+            get(files[length])
 
 
 
 while connection:
     info = ""
-
     c.send(os.getcwd().encode())
-    print("test1")
+    print("test10")
     data = c.recv(1024).decode()
     print("test2")
     command = data.split(' ')
@@ -79,9 +68,10 @@ while connection:
         if len(wish) == 0:
             for length in range(len(os.listdir(currentDir))):
                 info += (os.listdir(currentDir)[length] + " \n")
+            c.send(info.encode())
         else:
             info = "Please enter a valid command"
-
+            c.send(info.encode())
     elif cmd == "cd":
         if len(wish) > 0:
             try:
@@ -89,24 +79,32 @@ while connection:
                 os.chdir(wish)
                 currentDir = os.curdir
                 info = " "
+                c.send(info.encode())
             except FileNotFoundError:
                 info = "This file does not exist"
+                c.send(info.encode())
         else:
             info = "Please enter a directory path"
-
+            c.send(info.encode())
     elif cmd == "get":
         if len(wish) > 0:
-            info = get(wish)
+            print(wish)
+            get(wish)
+            print("GET COMMAND EXECUTED")
         else:
-            info = "Please enter a file"
+            info = "Please enter a file\n"
+            c.send(info.encode())
+    elif cmd == "mget":
+        if len(wish) > 0:
+            print(wish)
+            mget(data)
+            print("MGET COMMAND EXECUTED")
+        else:
+            info = "Please enter a file\n"
+            c.send(info.encode())
 
     elif cmd == "quit":
         quit()
-
     else:
         info = "Invalid Command"
-    c.send(info.encode())
-
-
-
-
+        c.send(info.encode())
