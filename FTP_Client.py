@@ -8,7 +8,7 @@ s = ""
 try:
     s = socket.socket()
     s.connect(('Bills', 21))
-except (socket.gaierror,ConnectionRefusedError):
+except (socket.gaierror, ConnectionRefusedError):
     print("Connection Failed")
     quit()
 
@@ -34,44 +34,80 @@ while not login:
 os.chdir("D://FTP_Client")
 
 while connection:
+    print('test1')
     print(s.recv(1024).decode())
-    command = input()
-    if command == "":
-        command = " "
-    s.send(command.encode())
-    if command == "ls":
+    print('test2')
+    action = input()
+    if action == "":
+        action = " "
+    inputs = action.split()
+    print('test3')
+    try:
+        cmd = inputs[0]
+    except IndexError:
+        cmd = ""
+    try:
+        wish = inputs[1]
+    except IndexError:
+        wish = ""
+
+    s.send(action.encode())
+    if cmd == "ls":
+        print('test5')
         print(s.recv(1024).decode())
-    if command == "cd":
+    elif cmd == "cd":
         print(s.recv(1024).decode())
 
-    if command == "get":
-        data = command.split("/")
+    elif cmd == "get":
+
+        data = wish.split("/")
         filename = data[-1]
-        answer = s.recv(1024).decode()
-        if answer == "File not found" or "Please enter a file":
-            print(answer)
+        answer = s.recv(4096).decode()
+        print(answer)
+        if answer != "File not found" and answer != "Please enter a file\n":
+            sentData = ''
+            f = open(os.curdir + '/' + data[-1], "wb")
+            while sentData != b'Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*':
+                sentData = s.recv(4096)
+                if sentData != b'Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*':
+                    f.write(sentData)
+                    print("Downloading...")
+            f.close()
+            print("File downloaded")
+
         else:
+            print("file not found")
+    elif cmd == "mget":
+        files = action.split(' ')
+        for length in range(len(files)):
+            if files[length] != "mget":
+                answer = s.recv(4096).decode()
+                print(answer)
+                if answer != "File not found" and answer != "Please enter a file\n":
+                    sentData = ''
+                    filepath = files[length].split('/')
+                    print(filepath)
+                    if filepath[0] != "mget":
+                        filename = filepath[-1]
+                        f = open(os.curdir + '/' + filename, "wb" )
+                        while sentData != b'Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*':
+                            sentData = s.recv(4096)
+                            if sentData != b'Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*':
+                                f.write(sentData)
+                                print("Downloading...")
+                        f.close()
+                        print("File downloaded")
 
-            if filename[-3:] == 'jpg' or 'png':
-                f = open(os.curdir + data[1], "wb")
-                f.write(answer)
-                f.close()
-            elif filename[-3:] == 'txt':
-                f = open(os.curdir + data[1], "w")
-                f.write(answer)
-                f.close()
 
 
-    if command == "quit":
+
+
+
+
+
+    else:
+        print(s.recv(1024).decode())
+
+    if cmd == "quit":
         print('Shutting down...')
         quit()
-
-
-
-
-
-
-
-
-
-
