@@ -4,7 +4,7 @@ import time
 #  Code by Sonny Rasavong and Hunter Sales
 
 s = ''
-mainDir = "D://"
+mainDir = "D://FTP_Server"
 currentDir = mainDir
 os.chdir(mainDir)
 try:
@@ -29,13 +29,11 @@ def get(file):
             while True:
                 inf_data = inf.read(4096)
                 if inf_data == b'':
-                    print("end of file")
                     inf_data = "Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*"
                     c.send(inf_data.encode())
                     time.sleep(.1)
                     break
                 time.sleep(.1)
-                print('sendall')
                 c.sendall(inf_data)
     except FileNotFoundError:
         c.send("File not found".encode())
@@ -51,20 +49,17 @@ def mget(file):
 while connection:
     info = ""
     c.send(os.getcwd().encode())
-    print("test10")
     data = c.recv(1024).decode()
-    print("test2")
     command = data.split(' ')
     try:
         cmd = command[0]
     except IndexError:
         cmd = ""
-        print('test3')
     try:
         wish = command[1]
     except IndexError:
         wish = ""
-    if cmd == "ls":
+    if cmd == "ls" or cmd == "dir":
         if len(wish) == 0:
             for length in range(len(os.listdir(currentDir))):
                 info += (os.listdir(currentDir)[length] + " \n")
@@ -94,6 +89,42 @@ while connection:
         else:
             info = "Please enter a file\n"
             c.send(info.encode())
+    elif cmd == "put":
+        data = wish.split("/")
+        filename = data[-1]
+        answer = c.recv(4096).decode()
+        if answer == "uploading":
+            sentData = ''
+            f = open(os.curdir + "/" + data[-1], "wb")
+            while sentData != b'Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*':
+                sentData = c.recv(4096)
+                if sentData != b'Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*':
+                    f.write(sentData)
+                    print("Downloading")
+            f.close()
+            print("File downloaded")
+    elif cmd == "mput":
+        files = data.split()
+        for length in range(len(files)):
+            if files[length] != "mput":
+                answer = c.recv(4096).decode()
+                if answer != "Please enter files" and answer != "File not found":
+                    sentData = ''
+                    filepath = files[length].split('/')
+                    if filepath[0] != "mput":
+                        filename = filepath[-1]
+                        f = open(os.curdir + '/' + filename, "wb")
+                        while sentData != b'Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*':
+                            sentData = c.recv(4096)
+                            if sentData != b'Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*':
+                                f.write(sentData)
+                                print("Downloading...")
+                        f.close()
+                        print("File downloaded")
+
+
+
+
     elif cmd == "mget":
         if len(wish) > 0:
             print(wish)
