@@ -16,7 +16,7 @@ except (socket.gaierror, ConnectionRefusedError):
 print("Connection Successful!")
 connection = True
 login = False
-
+"""
 while not login:
     print("FTP Login 10.20.121.127")    # Asks for information for logging in
     print("Please enter your username")
@@ -29,6 +29,7 @@ while not login:
     else:
         print("Access Granted")
         login = True
+        """
 os.chdir("D://FTP_Client")    # Set directory to FTP_Client
 def put(wish):
     try:
@@ -63,7 +64,7 @@ while connection:
     except IndexError:
         wish = ""
     s.send(action.encode())
-    if cmd == "ls" or "dir":
+    if cmd == "ls" or cmd == "dir":
         print(s.recv(1024).decode())    # accepts the list of files in directory
     elif cmd == "cd":
         print(s.recv(1024).decode())    # Shows what directory changed too
@@ -74,7 +75,9 @@ while connection:
         print(answer)
         if answer != "File not found" and answer != "Please enter a file\n":
             sentData = ''
+            print('test1')
             f = open(os.curdir + '/' + data[-1], "wb")
+            print("test2")
             while sentData != b'Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*':
                 sentData = s.recv(4096)    # writes into file until end code is hit
                 if sentData != b'Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*':
