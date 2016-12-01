@@ -1,4 +1,5 @@
 import socket, re, os, glob, gzip, select, getpass
+import time
 
 # Code by Sonny Rasavong and Hunter Sales
 
@@ -15,7 +16,7 @@ except (socket.gaierror, ConnectionRefusedError):
 print("Connection Successful!")
 connection = True
 login = False
-"""
+
 while not login:
     print("FTP Login 192.168.1.69")
     print("Please enter your username")
@@ -29,19 +30,41 @@ while not login:
     else:
         print("Access Granted")
         login = True
-"""
+
 
 os.chdir("D://FTP_Client")
 
+
+def put(wish):
+    try:
+        with open(wish, 'rb') as inf:
+            s.send("uploading".encode())
+            while True:
+                inf_data = inf.read(4096)
+                if inf_data == b'':
+                    inf_data = "Finished sending)(*&^%$%^*(*&^%$%^&*&^%$%^&*(*&^%$#$%^&*(&^%$#$%^&*"
+                    s.send(inf_data.encode())
+                    time.sleep(.1)
+                    break
+                time.sleep(.1)
+                print("Uploading...")
+                s.sendall(inf_data)
+            print('File uploaded')
+    except FileNotFoundError:
+        s.send("File not found".encode())
+        print('File not found')
+
+
+
+
+
+
 while connection:
-    print('test1')
     print(s.recv(1024).decode())
-    print('test2')
     action = input()
     if action == "":
         action = " "
     inputs = action.split()
-    print('test3')
     try:
         cmd = inputs[0]
     except IndexError:
@@ -53,7 +76,6 @@ while connection:
 
     s.send(action.encode())
     if cmd == "ls":
-        print('test5')
         print(s.recv(1024).decode())
     elif cmd == "cd":
         print(s.recv(1024).decode())
@@ -77,6 +99,18 @@ while connection:
 
         else:
             print("file not found")
+    elif cmd == "put":
+        put(wish)
+    elif cmd == "mput":
+        files = action.split(' ')
+        if len(wish) > 0:
+            for length in range(len(files)):
+                if files[length] != "mput":
+                    put(files[length])
+        else:
+            print("Please enter files")
+            s.send("Please enter files".encode())
+
     elif cmd == "mget":
         files = action.split(' ')
         for length in range(len(files)):
@@ -97,6 +131,7 @@ while connection:
                                 print("Downloading...")
                         f.close()
                         print("File downloaded")
+
 
 
 
