@@ -16,7 +16,7 @@ except (socket.gaierror, ConnectionRefusedError):
 print("Connection Successful!")
 connection = True
 login = False
-"""
+
 while not login:
     print("FTP Login 10.20.121.127")    # Asks for information for logging in
     print("Please enter your username")
@@ -29,7 +29,7 @@ while not login:
     else:
         print("Access Granted")
         login = True
-        """
+        
 os.chdir("D://FTP_Client")    # Set directory to FTP_Client
 def put(wish):
     try:
